@@ -3,36 +3,33 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-from sklearn.model_selection import train_test_split
-from src.utils import save_as_pickle
 import pandas as pd
 
+from catboost import CatBoostRegressor
 
 
 @click.command()
-@click.argument('input_data_filepath', type=click.Path(exists=True))
-@click.argument('input_target_filepath', type=click.Path(exists=True))
+@click.argument('x_train_path', type=click.Path(exists=True))
+@click.argument('target_train_filepath', type=click.Path(exists=True))
 @click.argument('output_model_filepath', type=click.Path())
-@click.argument('output_validx_filepath', type=click.Path())
-def main(input_data_filepath, input_target_filepath, output_data_filepath, output_validx_filepath):
+
+def main(x_train_path, target_train_filepath, output_model_filepath):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
     logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
 
-    train_data = pd.read_pickle(input_data_filepath)
-    train_target = pd.read_pickle(input_target_filepath)
+    X = pd.read_csv(x_train_path)
+    y = pd.read_csv(target_train_filepath)
 
-    train_idx, val_idx = train_test_split(
-        train_data.index, test_size=0.2, random_state=7)
-    
-    train_data = train_data.loc[train_idx]
-    train_target = train_target.loc[train_idx]
+    catboost = CatBoostRegressor()
+
+    catboost.fit(X, y['SalePrice'])
+
+    catboost.save_model(output_model_filepath)
 
     # fit, save model or hyperparameters tuning using somethink like RandomizedSearchCV
-
-    save_as_pickle(val_idx, output_validx_filepath)
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

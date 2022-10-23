@@ -3,23 +3,40 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-from src.utils import save_as_pickle
-from preprocess import preprocess_data, preprocess_target, extract_target
 import pandas as pd
+
+from sklearn.model_selection import train_test_split
 
 
 @click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_data_filepath', type=click.Path())
-@click.argument('output_target_filepath', type=click.Path())
-def main(input_filepath, output_data_filepath, output_target_filepath=None):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+@click.argument('input_x', type=click.Path(exists=True))
+@click.argument('input_target', type=click.Path(exists=True))
 
-    pass
+@click.argument('output_x_train', type=click.Path())
+@click.argument('output_target_train', type=click.Path())
+
+@click.argument('output_x_val', type=click.Path())
+@click.argument('output_target_val', type=click.Path())
+
+def main(input_x, input_target, output_x_train, output_target_train, output_x_val, output_target_val):
+  
+    logger = logging.getLogger(__name__)
+    logger.info('making final data set from preprocessed data')
+
+    data_features = pd.read_csv(input_x)
+    data_target = pd.read_csv(input_target)
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        data_features,  data_target, test_size=0.2, random_state=42)
+
+
+    X_train.to_csv(output_x_train)
+    y_train.to_csv(output_target_train)
+
+    X_val.to_csv(output_x_val)
+    y_val.to_csv(output_target_val)
+    
+    
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

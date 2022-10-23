@@ -4,14 +4,17 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import pandas as pd
-from features import generate_features
+from preprocess import preprocess_data
+import pickle
 
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_data_filepath', type=click.Path())
-def main(input_filepath, output_data_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
+@click.argument('output_x_data_filepath', type=click.Path())
+@click.argument('output_target_filepath', type=click.Path())
+@click.argument('output_ecnoder_filepath', type=click.Path())
+def main(input_filepath, output_x_data_filepath, output_target_filepath, output_ecnoder_filepath):
+    """ Runs data processing scripts to turn raw data from (../interim) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
     logger = logging.getLogger(__name__)
@@ -19,9 +22,12 @@ def main(input_filepath, output_data_filepath):
 
     dataset = pd.read_csv(input_filepath)
 
-    dataset = generate_features(dataset)
+    X_data, target, encoder = preprocess_data(dataset)
 
-    dataset.to_csv(output_data_filepath)
+    X_data.to_csv(output_x_data_filepath)
+    target.to_csv(output_target_filepath)
+
+    pickle.dump(encoder, open(output_ecnoder_filepath, 'wb'))
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

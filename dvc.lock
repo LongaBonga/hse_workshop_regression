@@ -1,0 +1,57 @@
+schema: '2.0'
+stages:
+  feature_generating:
+    cmd: python3 src/features/build_features.py data/raw/train.csv data/interim/train_featurized.csv
+    deps:
+    - path: data/raw
+      md5: f1bee252fc1163f4595334fedeb31899.dir
+      size: 957390
+      nfiles: 4
+    outs:
+    - path: data/interim
+      md5: 11a382ec60e2e417a40fbec74694637a.dir
+      size: 588438
+      nfiles: 2
+  preprocess data:
+    cmd: python3 src/features/preprocess_data.py data/interim/train_featurized.csv
+      data/processed/x_train.csv data/processed/target.csv data/processed/enc.pkl
+    deps:
+    - path: data/interim
+      md5: 11a382ec60e2e417a40fbec74694637a.dir
+      size: 588438
+      nfiles: 2
+    outs:
+    - path: data/processed
+      md5: 39bd23941a67db87ba3b2a7ac4383586.dir
+      size: 1156399
+      nfiles: 4
+  make dataset:
+    cmd: python3 src/data/make_dataset.py data/processed/x_train.csv data/processed/target.csv
+      data/train_val_datasets/x_train.csv data/train_val_datasets/target_train.csv
+      data/train_val_datasets/x_val.csv data/train_val_datasets/target_val.csv
+    deps:
+    - path: data/processed
+      md5: 39bd23941a67db87ba3b2a7ac4383586.dir
+      size: 1156399
+      nfiles: 4
+    outs:
+    - path: data/train_val_datasets
+      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
+      size: 2221534
+      nfiles: 5
+  train:
+    cmd: python3 src/models/train_model.py  data/train_val_datasets/x_train.csv data/train_val_datasets/target_train.csv
+      data/train_val_datasets/catboost
+    deps:
+    - path: data/train_val_datasets
+      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
+      size: 2221534
+      nfiles: 5
+  eval:
+    cmd: python3 src/models/evaluate.py  data/train_val_datasets/x_val.csv data/train_val_datasets/target_val.csv
+      data/train_val_datasets/catboost
+    deps:
+    - path: data/train_val_datasets
+      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
+      size: 2221534
+      nfiles: 5
