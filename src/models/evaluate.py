@@ -4,8 +4,8 @@ import json
 
 import click
 import pandas as pd
+import pickle
 
-from catboost import CatBoostRegressor
 
 from sklearn.metrics import mean_squared_error
 
@@ -25,13 +25,13 @@ def main(input_data_filepath, input_target_filepath, output_model_filepath):
 
 
 
-    trained_model = CatBoostRegressor().load_model(output_model_filepath)
+    trained_model = pickle.load(open(output_model_filepath, 'rb'))
 
     y_pred = trained_model.predict(val_data)
 
     metrics = {
 
-        'RMSE': mean_squared_error(val_target['SalePrice'], y_pred),
+        'RMSE': mean_squared_error(val_target['SalePrice'], y_pred)
        
     }
 

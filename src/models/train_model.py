@@ -4,8 +4,9 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 import pandas as pd
+import pickle
 
-from catboost import CatBoostRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
 
 
 @click.command()
@@ -23,11 +24,11 @@ def main(x_train_path, target_train_filepath, output_model_filepath):
     X = pd.read_csv(x_train_path)
     y = pd.read_csv(target_train_filepath)
 
-    catboost = CatBoostRegressor()
+    model = HistGradientBoostingRegressor()
 
-    catboost.fit(X, y['SalePrice'])
+    model.fit(X, y['SalePrice'])
 
-    catboost.save_model(output_model_filepath)
+    pickle.dump(model, open(output_model_filepath, 'wb'))
 
     # fit, save model or hyperparameters tuning using somethink like RandomizedSearchCV
 

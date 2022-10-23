@@ -36,22 +36,22 @@ stages:
       nfiles: 4
     outs:
     - path: data/train_val_datasets
-      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
-      size: 2221534
+      md5: baf8521ed4094a8055dee6a40631dba5.dir
+      size: 6544718
       nfiles: 5
   train:
     cmd: python3 src/models/train_model.py  data/train_val_datasets/x_train.csv data/train_val_datasets/target_train.csv
       data/train_val_datasets/catboost
     deps:
     - path: data/train_val_datasets
-      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
-      size: 2221534
+      md5: 43b9e304ae98ecf8f701effba34abeb3.dir
+      size: 1522047
       nfiles: 5
   eval:
     cmd: python3 src/models/evaluate.py  data/train_val_datasets/x_val.csv data/train_val_datasets/target_val.csv
       data/train_val_datasets/catboost
     deps:
     - path: data/train_val_datasets
-      md5: 9c0fd34bcbaf01b64358cc432b44bf45.dir
-      size: 2221534
+      md5: 43b9e304ae98ecf8f701effba34abeb3.dir
+      size: 1522047
       nfiles: 5
